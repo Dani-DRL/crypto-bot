@@ -64,12 +64,10 @@ async def button_controller(update: Update, context: CallbackContext):
         await start_command(update, context)
 
 def market_API_check(crypto, period):
-    # Mapeo de tickers a IDs de CoinGecko
     crypto_map = {
         "BTC": "bitcoin",
         "ETH": "ethereum",
         "XRP": "ripple"
-        # Puedes añadir más monedas aquí si quieres
     }
 
     if crypto not in crypto_map:
@@ -77,7 +75,6 @@ def market_API_check(crypto, period):
 
     crypto_id = crypto_map[crypto]
 
-    # Equivalencias de periodos
     period_map = {
         "1h": {"days": 1, "hours_back": 1},
         "12h": {"days": 1, "hours_back": 12},
@@ -90,11 +87,9 @@ def market_API_check(crypto, period):
     if period not in period_map:
         raise ValueError(f"Time period {period} is not supported")
 
-    # Construir URL
     url = f"https://api.coingecko.com/api/v3/coins/{crypto_id}/market_chart"
     params = {"vs_currency": "usd", "days": period_map[period]["days"]}
 
-    # Llamar a la API
     response = requests.get(url, params=params)
 
     if response.status_code != 200:
@@ -107,10 +102,8 @@ def market_API_check(crypto, period):
 
     prices = data["prices"]
 
-    # Precio actual = último
     current_price = prices[-1][1]
 
-    # Precio anterior (depende del periodo)
     if period_map[period]["hours_back"]:
         hours_back = period_map[period]["hours_back"]
         target_timestamp = (time.time() - hours_back * 3600) * 1000  # en ms
@@ -118,7 +111,6 @@ def market_API_check(crypto, period):
     else:
         old_price = prices[0][1]
 
-    # Variación porcentual
     change = (current_price/old_price - 1) * 100
 
     return round(current_price, 2), round(change, 2)
